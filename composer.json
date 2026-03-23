@@ -1,6 +1,6 @@
 {
     "name": "uconv/uconv",
-    "version": "0.1.0",
+    "version": "0.1.6",
     "description": "Lightweight unit converter library",
     "type": "library",
     "license": "MIT",

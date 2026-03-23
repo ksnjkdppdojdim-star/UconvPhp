@@ -1,0 +1,42 @@
+node_modules
+.env
+.venv
+__pycache__
+*.pyc
+vendor/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Builds
+dist/
+build/
+*.log
+
+# Node - additional
+node/node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# PHP - additional
+php/vendor/
+php/composer.lock  # or commit if team
+
+# Python - additional
+python/__pycache__/
+python/*.pyc
+python/*.pyo
+python/.venv/
+python/venv/
+python/env/
+python/pip-wheel-metadata/
+.Python
+
