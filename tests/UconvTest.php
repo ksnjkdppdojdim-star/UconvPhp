@@ -3,6 +3,7 @@
 namespace Uconv\Tests;
 
 use PHPUnit\Framework\TestCase;
+use Uconv\Counter;
 use Uconv\Uconv;
 use Uconv\Exceptions\UnknownUnitException;
 use Uconv\Exceptions\InvalidInputException;
@@ -10,6 +11,11 @@ use Uconv\Exceptions\IncompatibleUnitsException;
 
 class UconvTest extends TestCase
 {
+    protected function setUp(): void
+    {
+        Counter::resetAll();
+    }
+
     public function testDistanceKmToM()
     {
         $this->assertEquals(10000, Uconv::convert('10km', 'm'));
@@ -106,5 +112,64 @@ class UconvTest extends TestCase
         $this->assertEquals(10500, Uconv::convert('10.5km', 'm'));
         $this->assertEquals(10000, Uconv::convert(' 10km ', 'm'));
         $this->assertEquals(-10000, Uconv::convert('-10km', 'm'));
+    }
+
+    public function testRequestCounterCountsConversions()
+    {
+        $this->assertSame(0, Uconv::getRequestCount());
+
+        Uconv::convert('10km', 'm');
+        Uconv::convert('1hr', 'min');
+
+        $this->assertSame(2, Uconv::getRequestCount());
+    }
+
+    public function testRequestCounterCountsInvalidRequests()
+    {
+        try {
+            Uconv::convert('invalid', 'm');
+        } catch (InvalidInputException $e) {
+            // Expected.
+        }
+
+        $this->assertSame(1, Uconv::getRequestCount());
+    }
+
+    public function testRequestCounterCanBeIncrementedManually()
+    {
+        $this->assertSame(1, Uconv::countRequest());
+        $this->assertSame(2, Uconv::countRequest());
+        $this->assertSame(2, Uconv::getRequestCount());
+        $this->assertSame(0, Uconv::resetRequestCount());
+    }
+
+    public function testCounterCountsEachTextIndependently()
+    {
+        $this->assertSame(1, Counter::increment('server.request'));
+        $this->assertSame(2, Counter::increment('server.request'));
+        $this->assertSame(1, Counter::increment('loop.iteration'));
+
+        $this->assertSame(2, Counter::get('server.request'));
+        $this->assertSame(1, Counter::get('loop.iteration'));
+        $this->assertSame(0, Counter::get('unknown.text'));
+    }
+
+    public function testCounterCanReturnAllCounts()
+    {
+        Counter::increment('first');
+        Counter::increment('second');
+        Counter::increment('second');
+
+        $this->assertSame([
+            'first' => 1,
+            'second' => 2,
+        ], Counter::all());
+    }
+
+    public function testCounterRejectsEmptyText()
+    {
+        $this->expectException(\InvalidArgumentException::class);
+
+        Counter::increment('');
     }
 }

@@ -11,6 +11,8 @@ use Uconv\Exceptions\IncompatibleUnitsException;
  */
 class Uconv
 {
+    private const REQUEST_COUNTER = 'uconv.requests';
+
     private const CONVERTERS = [
         'distance' => Converters\Distance::class,
         'weight' => Converters\Weight::class,
@@ -23,6 +25,8 @@ class Uconv
      */
     public static function convert(string $from, string $to): float
     {
+        Counter::increment(self::REQUEST_COUNTER);
+
         try {
             $parsed = Parser::parseInput($from);
             if ($parsed === null) {
@@ -54,5 +58,29 @@ class Uconv
         } catch (\Throwable $e) {
             throw new \RuntimeException('Conversion failed: ' . $e->getMessage(), 0, $e);
         }
+    }
+
+    /**
+     * Count a received request without running a conversion.
+     */
+    public static function countRequest(): int
+    {
+        return Counter::increment(self::REQUEST_COUNTER);
+    }
+
+    /**
+     * Return the number of requests counted in this PHP process.
+     */
+    public static function getRequestCount(): int
+    {
+        return Counter::get(self::REQUEST_COUNTER);
+    }
+
+    /**
+     * Reset the request counter.
+     */
+    public static function resetRequestCount(): int
+    {
+        return Counter::reset(self::REQUEST_COUNTER);
     }
 }

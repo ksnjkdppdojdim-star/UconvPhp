@@ -30,6 +30,32 @@ echo Uconv::convert("1hr", "min");     // 60
 echo Uconv::convert("100USD", "EUR");  // ~85
 ```
 
+## Text counter
+
+```php
+use Uconv\Counter;
+
+Counter::increment("server.request");      // 1
+Counter::increment("server.request");      // 2
+Counter::increment("loop.iteration");      // 1
+
+echo Counter::get("server.request");       // 2
+print_r(Counter::all());                   // ["server.request" => 2, "loop.iteration" => 1]
+```
+
+The counter only counts text and returns numbers. You can use the returned value
+with a file, a JSON document, a database, logs, or any other storage you choose.
+By default, counts are kept in memory for the current PHP process.
+
+`Uconv::convert()` also increments the internal `uconv.requests` counter:
+
+```php
+Uconv::resetRequestCount();
+Uconv::convert("10km", "m");
+
+echo Uconv::getRequestCount();             // 1
+```
+
 ## Testing
 
 ```
